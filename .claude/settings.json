@@ -1,0 +1,76 @@
+{
+  "project": {
+    "name": "headlamp-plugins",
+    "filters": {
+      "includeGlobs": [
+        // --- all plugin sources & examples (fundamental) ---
+        "plugins/**",
+        "plugins/examples/**",
+        "plugins/examples/change-logo/**",
+        "plugins/examples/ai-assistant/**",
+
+        // --- Headlamp plugin framework in frontend ---
+        "frontend/src/plugin/**",
+        "frontend/src/plugin/plugins/**",
+
+        // --- areas your plugins may touch (logo, shell, helpers) ---
+        "frontend/src/components/App/**",
+        "frontend/src/resources/**",
+        "frontend/src/helpers/**",
+        "frontend/src/lib/**",
+
+        // --- minimal public/entry files used by the logo plugin ---
+        "frontend/index.html",
+        "frontend/public/manifest.json",
+        "frontend/public/**.svg",
+
+        // --- concise plugin docs & API references ---
+        "docs/plugins/**/*.md",
+        "docs/development/api/**/plugin_lib.*",
+        "docs/development/api/**/plugin_registry.*"
+      ],
+      "excludeGlobs": [
+        // node / git / build artefacts
+        "**/node_modules/**",
+        "**/.git/**",
+        "**/.cache/**",
+        "**/.vite/**",
+        "**/dist/**",
+        "**/build/**",
+
+        // tests, stories, snapshots, e2e
+        "**/__snapshots__/**",
+        "**/*.stories.*",
+        "**/*.storyshot",
+        "**/*.test.*",
+        "**/test/**",
+        "**/tests/**",
+        "e2e-tests/**",
+        "app/e2e-tests/**",
+
+        // heavy/verbose areas not needed for these two plugins
+        "app/**",
+        "backend/**",
+        "charts/**",
+        "docker-extension/**",
+        "container/**",
+        "load-tests/**",
+
+        // large asset folders (keep plugin assets intact by not glob-excluding extensions)
+        "docs/**/images/**",
+        "frontend/src/**/images/**",
+
+        // generated API reference sections that are massive
+        "docs/development/api/**/classes/**",
+        "docs/development/api/**/enums/**",
+        "docs/development/api/**/interfaces/**",
+        "docs/development/api/**/modules/**",
+
+        // fonts rarely needed for reasoning
+        "**/*.woff",
+        "**/*.woff2"
+      ]
+    }
+  }
+}
+

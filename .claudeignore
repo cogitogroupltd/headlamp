@@ -1,0 +1,58 @@
+# Node/Git/build
+**/node_modules/**
+**/.git/**
+**/.cache/**
+**/.vite/**
+**/dist/**
+**/build/**
+
+# Tests / stories / snapshots / e2e
+**/__snapshots__/**
+**/*.stories.*
+**/*.storyshot
+**/*.test.*
+**/test/**
+**/tests/**
+e2e-tests/**
+app/e2e-tests/**
+
+# Whole areas not needed for the two plugins
+app/**
+backend/**
+charts/**
+docker-extension/**
+container/**
+load-tests/**
+
+# Large asset folders (but keep plugin assets)
+docs/**/images/**
+frontend/src/**/images/**
+
+# Verbose generated API pages
+docs/development/api/**/classes/**
+docs/development/api/**/enums/**
+docs/development/api/**/interfaces/**
+docs/development/api/**/modules/**
+
+# Fonts
+**/*.woff
+**/*.woff2
+
+# --- Explicitly include plugin dirs & assets ---
+!plugins/**
+!plugins/examples/**
+!plugins/examples/change-logo/**
+!plugins/examples/ai-assistant/**
+!frontend/src/plugin/**
+!frontend/src/plugin/plugins/**
+!frontend/src/components/App/**
+!frontend/src/resources/**
+!frontend/src/helpers/**
+!frontend/src/lib/**
+!frontend/index.html
+!frontend/public/manifest.json
+!frontend/public/**.svg
+!docs/plugins/**/*.md
+!docs/development/api/**/plugin_lib.*
+!docs/development/api/**/plugin_registry.*
+

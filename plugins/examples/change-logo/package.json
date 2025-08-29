@@ -1,6 +1,6 @@
 {
   "name": "change-logo",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Changing the logo in Headlamp can be done like this.",
   "scripts": {
     "start": "headlamp-plugin start",

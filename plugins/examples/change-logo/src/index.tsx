@@ -24,7 +24,7 @@ import {
   registerAppLogo,
   registerPluginSettings,
 } from '@kinvolk/headlamp-plugin/lib';
-import { Avatar, SvgIcon } from '@mui/material';
+import { Avatar, Box, SvgIcon } from '@mui/material';
 import LogoWithTextLight from './icon-large-light.svg';
 import LogoLight from './icon-small-light.svg';
 import Settings, { store } from './settings';
@@ -41,16 +41,52 @@ function SimpleLogo(props: AppLogoProps) {
   const useConf = store.useConfig();
   const config = useConf();
 
-  return config?.url ? (
-    <Avatar src={config?.url} alt="logo" className={className} sx={sx} />
-  ) : (
-    <SvgIcon
-      className={className}
-      component={logoType === 'large' ? LogoWithTextLight : LogoLight}
-      viewBox="0 0 auto 32"
-      sx={sx}
-    />
-  );
+  // Default settings for backward compatibility
+  const maskShape = config?.maskShape || 'circle';
+  const paddingPct = config?.paddingPct || 0;
+  const bgColor = config?.bgColor || 'transparent';
+
+  if (config?.url) {
+    // Create wrapper with configurable shape and padding
+    const wrapperSx = {
+      ...sx,
+      width: '100%',
+      height: '100%',
+      overflow: 'hidden',
+      backgroundColor: bgColor,
+      borderRadius: maskShape === 'circle' ? '50%' : '0',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: `${paddingPct}%`,
+    };
+
+    const imgSx = {
+      width: '100%',
+      height: '100%',
+      objectFit: 'contain' as const,
+    };
+
+    return (
+      <Box className={className} sx={wrapperSx}>
+        <img
+          src={config.url}
+          alt="logo"
+          style={imgSx}
+        />
+      </Box>
+    );
+  } else {
+    // Use default SVG icons
+    return (
+      <SvgIcon
+        className={className}
+        component={logoType === 'large' ? LogoWithTextLight : LogoLight}
+        viewBox="0 0 auto 32"
+        sx={sx}
+      />
+    );
+  }
 }
 
 /**

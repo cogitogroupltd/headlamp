@@ -1,0 +1,137 @@
+# Disable the plugin manager to avoid extra mounts while testing
+pluginsManager:
+  enabled: false
+
+# Use a custom service account
+# serviceAccount:
+#   create: false
+#   name: headlamp-starfish # This should match your created service account
+
+config:
+  # Headlamp will load plugins from here (single mount we control)
+  pluginsDir: /build/plugins
+  watchPlugins: true
+
+# Create runtime JS for default logo (must be a string item)
+extraManifests:
+  - |
+    apiVersion: v1
+    kind: ConfigMap
+    metadata:
+      name: headlamp-runtime-config
+      namespace: kube-system
+    data:
+      99-change-logo-runtime.js: |
+        window.__HL_CHANGE_LOGO__ = {
+          url: "https://www.starfish.tv/wordpress/wp-content/uploads/2016/08/Starfish-Logo-1-2.png",
+          hideSettings: false, // lock the logo from being editted
+        };
+      99-default-theme.js: |
+        // Set splash screen theme
+        window.HL_DEFAULT_THEME = "Starfish";
+        
+        // Event-driven theme setting - much more reliable than timeouts
+        (function() {
+          let themeSetAttempted = false;
+          
+          function trySetDefaultTheme() {
+            // Prevent multiple attempts
+            if (themeSetAttempted) return;
+            
+            // Check if Headlamp's theme system is available
+            if (typeof window.getThemeName === 'function' && 
+                typeof window.setTheme === 'function') {
+              
+              // Only set if user hasn't chosen a theme
+              if (!localStorage.headlampThemePreference) {
+                console.log('Setting default theme to Starfish via event trigger');
+                window.setTheme('Starfish');
+                themeSetAttempted = true;
+                return true;
+              }
+              themeSetAttempted = true;
+              return true;
+            }
+            return false;
+          }
+          
+          // Try immediately if DOM is already loaded
+          if (document.readyState === 'complete') {
+            trySetDefaultTheme();
+          } else if (document.readyState === 'interactive') {
+            // DOM is ready, but resources may still be loading
+            if (!trySetDefaultTheme()) {
+              // If theme system not ready, wait for full load
+              window.addEventListener('load', trySetDefaultTheme, { once: true });
+            }
+          } else {
+            // Document is still loading
+            document.addEventListener('DOMContentLoaded', function() {
+              if (!trySetDefaultTheme()) {
+                // If theme system still not ready after DOM, wait for full load
+                window.addEventListener('load', trySetDefaultTheme, { once: true });
+              }
+            }, { once: true });
+          }
+          
+          // Additional fallback using MutationObserver to detect when React/theme system loads
+          if (typeof MutationObserver !== 'undefined') {
+            const observer = new MutationObserver(function(mutations) {
+              if (!themeSetAttempted && trySetDefaultTheme()) {
+                observer.disconnect();
+              }
+            });
+            
+            // Start observing when DOM is ready
+            if (document.body) {
+              observer.observe(document.body, { 
+                childList: true, 
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class', 'id']
+              });
+              
+              // Stop observing after 10 seconds to avoid memory leaks
+              setTimeout(() => observer.disconnect(), 10000);
+            }
+          }
+          
+          // Final emergency fallback with single timeout as last resort
+          setTimeout(() => {
+            if (!themeSetAttempted) {
+              console.log('Theme setting via emergency fallback timeout');
+              trySetDefaultTheme();
+            }
+          }, 3000);
+        })();
+
+# One shared volume for plugins + the runtime JS ConfigMap
+volumes:
+  - name: headlamp-plugins
+    emptyDir: {}
+  - name: headlamp-runtime-config
+    configMap:
+      name: headlamp-runtime-config
+
+# Mount the shared plugins dir and the runtime JS into the main container
+volumeMounts:
+  - name: headlamp-plugins
+    mountPath: /build/plugins
+  - name: headlamp-runtime-config
+    mountPath: /usr/share/headlamp/static/99-change-logo-runtime.js
+    subPath: 99-change-logo-runtime.js
+    readOnly: true
+  - name: headlamp-runtime-config
+    mountPath: /usr/share/headlamp/static/99-default-theme.js
+    subPath: 99-default-theme.js
+    readOnly: true
+
+# Init container copies /plugins/* (from your image) -> /build/plugins (the shared volume)
+initContainers:
+  - name: plugins-loader
+    image: local/headlamp-plugins:dev   # built below
+    imagePullPolicy: IfNotPresent
+    command: ["sh","-lc","cp -r /plugins/* /build/plugins/"]
+    volumeMounts:
+      - name: headlamp-plugins
+        mountPath: /build/plugins

@@ -69,6 +69,32 @@ describe('themes.ts', () => {
       });
       expect(getThemeName()).toBe('dark');
     });
+
+    it('should return runtime default theme when no localStorage preference is set', () => {
+      vi.stubGlobal('localStorage', {
+        headlampThemePreference: null,
+        clear: vi.fn(),
+      });
+      vi.stubGlobal('window', {
+        __HL_DEFAULT_THEME__: 'Monochrome Light',
+        matchMedia: vi.fn().mockReturnValue({ matches: false }),
+      });
+
+      expect(getThemeName()).toBe('Monochrome Light');
+    });
+
+    it('should prioritize localStorage preference over runtime default theme', () => {
+      vi.stubGlobal('localStorage', {
+        headlampThemePreference: 'dark',
+        clear: vi.fn(),
+      });
+      vi.stubGlobal('window', {
+        __HL_DEFAULT_THEME__: 'Monochrome Light',
+        matchMedia: vi.fn().mockReturnValue({ matches: false }),
+      });
+
+      expect(getThemeName()).toBe('dark');
+    });
   });
 
   describe('setTheme', () => {

@@ -446,6 +446,15 @@ export function usePrefersColorScheme() {
  * Hook gets theme based on user preference, and also OS/Browser preference.
  */
 export function getThemeName(): string {
+  // Check for runtime default theme configuration first
+  if (typeof window !== 'undefined' && (window as any).__HL_DEFAULT_THEME__) {
+    const runtimeTheme = (window as any).__HL_DEFAULT_THEME__;
+    // Only use runtime theme if no user preference is stored
+    if (!localStorage.headlampThemePreference) {
+      return runtimeTheme;
+    }
+  }
+
   const themePreference = localStorage.headlampThemePreference;
 
   if (typeof window.matchMedia !== 'function') {

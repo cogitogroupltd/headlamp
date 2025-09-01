@@ -113,6 +113,21 @@
       if (cachedTheme) {
         document.body.style.backgroundColor = cachedTheme.background.default;
         document.body.style.color = cachedTheme.text.primary;
+      } else if (window.__HL_DEFAULT_THEME__) {
+        // Handle runtime default theme for splash screen
+        // This provides basic styling for the splash screen when a runtime theme is set
+        // but no cached theme exists yet
+        const runtimeThemeName = window.__HL_DEFAULT_THEME__;
+        if (runtimeThemeName === 'Monochrome Light') {
+          document.body.style.backgroundColor = '#ffffff';
+          document.body.style.color = '#1f2328';
+        } else if (runtimeThemeName === 'dark') {
+          document.body.style.backgroundColor = '#292827';
+          document.body.style.color = '#faf9f8';
+        } else if (runtimeThemeName === 'Lights Out') {
+          document.body.style.backgroundColor = '#010409';
+          document.body.style.color = '#f0f6fc';
+        }
       }
     </script>
     <script type="module" src="/src/index.tsx"></script>

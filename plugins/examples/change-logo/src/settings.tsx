@@ -17,14 +17,7 @@
 import { ConfigStore } from '@kinvolk/headlamp-plugin/lib';
 import { NameValueTable } from '@kinvolk/headlamp-plugin/lib/CommonComponents';
 import Box from '@mui/material/Box';
-import FormControl from '@mui/material/FormControl';
-import FormHelperText from '@mui/material/FormHelperText';
-import InputLabel from '@mui/material/InputLabel';
-import MenuItem from '@mui/material/MenuItem';
-import Select from '@mui/material/Select';
-import Slider from '@mui/material/Slider';
 import TextField from '@mui/material/TextField';
-import Typography from '@mui/material/Typography';
 import { useEffect, useState } from 'react';
 
 /**
@@ -86,9 +79,6 @@ function AutoSaveInput({ onSave, defaultValue = '', delay = 1000, helperText = '
 
 interface pluginConfig {
   url: string;
-  maskShape: 'circle' | 'square';
-  paddingPct: number;
-  bgColor: string;
 }
 
 export const store = new ConfigStore<pluginConfig>('change-logo');
@@ -107,81 +97,30 @@ export default function Settings() {
   const [currentConfig, setCurrentConfig] = useState(config);
 
   /**
-   * Handles saving the updated configuration to the store.
-   * It updates the configuration and refreshes the local component state.
+   * Handles saving the updated configuration value to the store.
+   * It updates the specified configuration property and refreshes the local component state
+   * to reflect the latest configuration.
    *
-   * @param {Partial<pluginConfig>} updates - The configuration updates to apply.
+   * @param {string} value - The new value for the configuration property to be updated.
    */
-  function handleSave(updates: Partial<pluginConfig>) {
-    const updatedConfig = { ...currentConfig, ...updates };
+  function handleSave(value) {
+    const updatedConfig = { url: value };
     // Save the updated configuration to the store
     store.set(updatedConfig);
     // Update the component state to reflect the new configuration
     setCurrentConfig(store.get());
   }
 
-  // Define rows for the settings table
+  // Define rows for the settings table, including the AutoSaveInput component for the logo URL
   const settingsRows = [
     {
       name: 'Logo URL',
       value: (
         <AutoSaveInput
-          defaultValue={currentConfig?.url || ''}
-          onSave={(value) => handleSave({ url: value })}
+          defaultValue={currentConfig?.url}
+          onSave={handleSave}
           delay={1000}
           helperText={'Enter the URL of your logo.'}
-        />
-      ),
-    },
-    {
-      name: 'Shape',
-      value: (
-        <FormControl fullWidth variant="standard">
-          <InputLabel shrink style={{ display: 'none' }}>Shape</InputLabel>
-          <Select
-            value={currentConfig?.maskShape || 'circle'}
-            onChange={(e) => handleSave({ maskShape: e.target.value as 'circle' | 'square' })}
-            displayEmpty
-            style={{ borderBottom: '1px solid rgba(0, 0, 0, 0.42)' }}
-          >
-            <MenuItem value="circle">Circle (current behavior)</MenuItem>
-            <MenuItem value="square">Square (no mask)</MenuItem>
-          </Select>
-          <FormHelperText>Choose whether to render the logo in a circle or square container.</FormHelperText>
-        </FormControl>
-      ),
-    },
-    {
-      name: 'Padding (%)',
-      value: (
-        <Box>
-          <Slider
-            value={currentConfig?.paddingPct || 0}
-            onChange={(_, value) => handleSave({ paddingPct: value as number })}
-            min={0}
-            max={20}
-            step={1}
-            valueLabelDisplay="auto"
-            marks={[
-              { value: 0, label: '0%' },
-              { value: 10, label: '10%' },
-              { value: 20, label: '20%' },
-            ]}
-          />
-          <Typography variant="caption" color="textSecondary">
-            Add internal padding around the logo to avoid edge clipping (0-20%).
-          </Typography>
-        </Box>
-      ),
-    },
-    {
-      name: 'Background Color',
-      value: (
-        <AutoSaveInput
-          defaultValue={currentConfig?.bgColor || 'transparent'}
-          onSave={(value) => handleSave({ bgColor: value })}
-          delay={1000}
-          helperText={'CSS color value (e.g., transparent, #ffffff, rgba(255,255,255,0.5)).'}
         />
       ),
     },
